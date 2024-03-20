@@ -1,0 +1,58 @@
+#game-area {
+    display: grid;
+    grid-template-areas:
+        ". player2 ."
+        "player1 played-cards player3"
+        ". player4 .";
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: 1fr 2fr 1fr;
+    gap: 20px;
+    justify-items: center;
+    align-items: center;
+    height: 80vh;
+}
+
+.player-hand {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+}
+
+#player1 {
+    grid-area: player1;
+}
+
+#player2 {
+    grid-area: player2;
+}
+
+#player3 {
+    grid-area: player3;
+}
+
+#player4 {
+    grid-area: player4;
+}
+
+#played-cards {
+    grid-area: played-cards;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+}
+
+.card {
+    display: inline-block;
+    padding: 5px;
+    margin: 5px;
+    border: 1px solid black;
+}
+
+#game-log {
+    height: 200px;
+    overflow-y: scroll;
+    border: 1px solid black;
+    padding: 10px;
+}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>掼蛋游戏</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>掼蛋游戏</h1>
+    <div id="game-area">
+        <div id="player2" class="player-hand"></div>
+        <div id="player1" class="player-hand"></div>
+        <div id="played-cards"></div>
+        <div id="player3" class="player-hand"></div>
+        <div id="player4" class="player-hand"></div>
+    </div>
+    <div id="game-log"></div>
+    <button id="play-btn">开始游戏</button>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        var gameState = {{ game_state|tojson }};
+
+        function updateGameState(newState) {
+            gameState = newState;
+            $('.player-hand').empty();
+            gameState.players.forEach(function(player, index) {
+                var handHtml = player.hand.map(function(card) {
+                    return '<div class="card">' + card + '</div>';
+                }).join('');
+                $('#player' + (index + 1)).html(handHtml);
+            });
+
+            var playedCardsHtml = gameState.last_played_cards.map(function(card) {
+                return '<div class="card">' + card + '</div>';
+            }).join('');
+            $('#played-cards').html(playedCardsHtml);
+
+            var gameLogHtml = gameState.game_log.map(function(log) {
+                return '<p>' + log + '</p>';
+            }).join('');
+            $('#game-log').html(gameLogHtml);
+            $('#game-log').scrollTop($('#game-log')[0].scrollHeight);
+
+            if (gameState.game_over) {
+                alert('游戏结束!');
+            }
+        }
+
+        $(document).ready(function() {
+            updateGameState(gameState);
+
+            $('#play-btn').click(function() {
+                var eventSource = new EventSource("/play");
+
+                eventSource.onmessage = function(event) {
+                    if (event.data == "GAME_OVER") {
+                        eventSource.close();
+                    } else {
+                        var newState = JSON.parse(event.data);
+                        updateGameState(newState);
+                    }
+                };
+            });
+        });
+    </script>
+</body>
+</html>

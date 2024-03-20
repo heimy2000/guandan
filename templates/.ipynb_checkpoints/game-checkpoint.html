@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>掼蛋游戏</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>掼蛋游戏</h1>
+    <div id="game-state"></div>
+    <div id="player-hand"></div>
+    <button id="play-btn">出牌</button>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        var gameState = null;
+
+        $(document).ready(function() {
+            // 获取初始游戏状态
+            $.post('/start_game', function(data) {
+                gameState = data;
+                updateGameState();
+            }, 'json');
+
+            $('#play-btn').click(function() {
+                var playedCards = getSelectedCards();
+                $.ajax({
+                    url: '/play_card',
+                    method: 'POST',
+                    data: JSON.stringify({played_cards: playedCards}),
+                    contentType: 'application/json',
+                    success: function(data) {
+                        gameState = data;
+                        updateGameState();
+                    }
+                });
+            });
+        });
+
+        function updateGameState() {
+            $('#game-state').text(JSON.stringify(gameState));
+            var playerHand = gameState.players[gameState.current_player].hand;
+            var handHtml = playerHand.map(function(card) {
+                return '<div class="card" onclick="selectCard(this)">' + card + '</div>';
+            }).join('');
+            $('#player-hand').html(handHtml);
+
+            if (gameState.game_over) {
+                alert('游戏结束!');
+            }
+        }
+
+        function getSelectedCards() {
+            var selectedCards = [];
+            $('.card.selected').each(function() {
+                selectedCards.push($(this).text());
+            });
+            return selectedCards;
+        }
+
+        function selectCard(card) {
+            $(card).toggleClass('selected');
+        }
+    </script>
+</body>
+</html>
